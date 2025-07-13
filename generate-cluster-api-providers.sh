@@ -11,6 +11,11 @@ capmox_version="v0.7.1"
 clusterctl generate provider --core  cluster-api:${cluster_api_version} --describe
 clusterctl generate provider --core  cluster-api:${cluster_api_version} > templates/provider-core/resources.yaml
 
+# currently, this provider lives in the cluster-api repo
+# https://github.com/kubernetes-sigs/cluster-api/tree/main/bootstrap/kubeadm
+clusterctl generate provider --bootstrap  kubeadm:${cluster_api_version} --describe
+clusterctl generate provider --bootstrap  kubeadm:${cluster_api_version} > templates/provider-bootstrap-kubeadm/resources.yaml
+
 clusterctl generate provider --ipam in-cluster:${ipam_incluster_version} --describe 
 clusterctl generate provider --ipam in-cluster:${ipam_incluster_version} >  templates/provider-ipam/resources.yaml
 
