@@ -14304,6 +14304,7 @@ spec:
       - name: cert
         secret:
           secretName: capi-webhook-service-cert
+status: {}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
