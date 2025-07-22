@@ -14335,6 +14335,7 @@ spec:
       - name: cert
         secret:
           secretName: capi-webhook-service-cert
+status: {}
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
