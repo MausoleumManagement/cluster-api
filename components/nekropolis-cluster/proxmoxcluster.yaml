@@ -1,0 +1,23 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: ProxmoxCluster
+metadata:
+  annotations:
+  name: nekropolis
+spec:
+  allowedNodes:
+    - pve001
+    - pve002
+    - pve020
+  controlPlaneEndpoint:
+    host: 192.168.10.11
+    port: 6443
+  dnsServers:
+    - 192.168.178.2
+    - 84.200.69.80
+    - 9.9.9.9
+  ipv4Config:
+    addresses:
+      - 192.168.10.50-192.168.10.100
+    gateway: 192.168.178.1
+    metric: 100
+    prefix: 16

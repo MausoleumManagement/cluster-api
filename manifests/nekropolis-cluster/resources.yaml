@@ -1,0 +1,330 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: cluster-api
+  name: cluster-api
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: nekropolis-worker
+  namespace: cluster-api
+spec:
+  template:
+    spec:
+      format: cloud-config
+      joinConfiguration:
+        discovery: {}
+        nodeRegistration:
+          imagePullPolicy: IfNotPresent
+          kubeletExtraArgs:
+            provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+      users:
+      - name: root
+        sshAuthorizedKeys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
+          Leon Welchert privat
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  finalizers:
+  - cluster.cluster.x-k8s.io
+  generation: 6
+  labels:
+    cluster.x-k8s.io/cluster-name: nekropolis
+  name: nekropolis
+  namespace: cluster-api
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+  controlPlaneEndpoint:
+    host: 192.168.10.11
+    port: 6443
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: nekropolis-control-plane
+    namespace: cluster-api
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+    kind: ProxmoxCluster
+    name: nekropolis
+    namespace: cluster-api
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: nekropolis
+  name: nekropolis-workers
+  namespace: cluster-api
+spec:
+  clusterName: nekropolis
+  minReadySeconds: 0
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: nekropolis
+      cluster.x-k8s.io/deployment-name: nekropolis-workers
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: nekropolis
+        cluster.x-k8s.io/deployment-name: nekropolis-workers
+        node-role.kubernetes.io/node: ""
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: nekropolis-worker
+          namespace: cluster-api
+      clusterName: nekropolis
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+        kind: ProxmoxMachineTemplate
+        name: nekropolis-worker
+        namespace: cluster-api
+      version: v1.30.11
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: nekropolis
+  name: nekropolis-control-plane
+  namespace: cluster-api
+spec:
+  kubeadmConfigSpec:
+    files:
+    - content: |
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          creationTimestamp: null
+          name: kube-vip
+          namespace: kube-system
+        spec:
+          containers:
+          - args:
+            - manager
+            env:
+            - name: cp_enable
+              value: "true"
+            - name: vip_interface
+              value: ""
+            - name: address
+              value: 192.168.10.11
+            - name: port
+              value: "6443"
+            - name: vip_arp
+              value: "true"
+            - name: vip_leaderelection
+              value: "true"
+            - name: vip_leaseduration
+              value: "15"
+            - name: vip_renewdeadline
+              value: "10"
+            - name: vip_retryperiod
+              value: "2"
+            image: ghcr.io/kube-vip/kube-vip:v0.7.1
+            imagePullPolicy: IfNotPresent
+            name: kube-vip
+            resources: {}
+            securityContext:
+              capabilities:
+                add:
+                - NET_ADMIN
+                - NET_RAW
+            volumeMounts:
+            - mountPath: /etc/kubernetes/admin.conf
+              name: kubeconfig
+          hostAliases:
+          - hostnames:
+            - localhost
+            - kubernetes
+            ip: 127.0.0.1
+          hostNetwork: true
+          volumes:
+          - hostPath:
+              path: /etc/kubernetes/admin.conf
+              type: FileOrCreate
+            name: kubeconfig
+        status: {}
+      owner: root:root
+      path: /etc/kubernetes/manifests/kube-vip.yaml
+    - content: |
+        #!/bin/bash
+
+        # Copyright 2020 The Kubernetes Authors.
+        #
+        # Licensed under the Apache License, Version 2.0 (the "License");
+        # you may not use this file except in compliance with the License.
+        # You may obtain a copy of the License at
+        #
+        #     http://www.apache.org/licenses/LICENSE-2.0
+        #
+        # Unless required by applicable law or agreed to in writing, software
+        # distributed under the License is distributed on an "AS IS" BASIS,
+        # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        # See the License for the specific language governing permissions and
+        # limitations under the License.
+
+        set -e
+
+        # Configure the workaround required for kubeadm init with kube-vip:
+        # xref: https://github.com/kube-vip/kube-vip/issues/684
+
+        # Nothing to do for kubernetes < v1.29
+        KUBEADM_MINOR="$(kubeadm version -o short | cut -d '.' -f 2)"
+        if [[ "$KUBEADM_MINOR" -lt "29" ]]; then
+          exit 0
+        fi
+
+        IS_KUBEADM_INIT="false"
+
+        # cloud-init kubeadm init
+        if [[ -f /run/kubeadm/kubeadm.yaml ]]; then
+          IS_KUBEADM_INIT="true"
+        fi
+
+        # ignition kubeadm init
+        if [[ -f /etc/kubeadm.sh ]] && grep -q -e "kubeadm init" /etc/kubeadm.sh; then
+          IS_KUBEADM_INIT="true"
+        fi
+
+        if [[ "$IS_KUBEADM_INIT" == "true" ]]; then
+          sed -i 's#path: /etc/kubernetes/admin.conf#path: /etc/kubernetes/super-admin.conf#' \
+            /etc/kubernetes/manifests/kube-vip.yaml
+        fi
+      owner: root:root
+      path: /etc/kube-vip-prepare.sh
+      permissions: "0700"
+    format: cloud-config
+    initConfiguration:
+      localAPIEndpoint: {}
+      nodeRegistration:
+        imagePullPolicy: IfNotPresent
+        kubeletExtraArgs:
+          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+    joinConfiguration:
+      discovery: {}
+      nodeRegistration:
+        imagePullPolicy: IfNotPresent
+        kubeletExtraArgs:
+          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+    preKubeadmCommands:
+    - /etc/kube-vip-prepare.sh
+    users:
+    - name: root
+      sshAuthorizedKeys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
+        Leon Welchert privat
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+      kind: ProxmoxMachineTemplate
+      name: nekropolis-control-plane
+      namespace: cluster-api
+    metadata: {}
+  replicas: 3
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+    type: RollingUpdate
+  version: v1.30.11
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: ProxmoxCluster
+metadata:
+  name: nekropolis
+  namespace: cluster-api
+spec:
+  allowedNodes:
+  - pve001
+  - pve002
+  - pve020
+  controlPlaneEndpoint:
+    host: 192.168.10.11
+    port: 6443
+  dnsServers:
+  - 192.168.178.2
+  - 84.200.69.80
+  - 9.9.9.9
+  ipv4Config:
+    addresses:
+    - 192.168.10.50-192.168.10.100
+    gateway: 192.168.178.1
+    metric: 100
+    prefix: 16
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: ProxmoxMachineTemplate
+metadata:
+  name: nekropolis-control-plane
+  namespace: cluster-api
+spec:
+  template:
+    spec:
+      disks:
+        bootVolume:
+          disk: scsi0
+          sizeGb: 30
+      format: qcow2
+      full: true
+      memoryMiB: 4096
+      network:
+        default:
+          bridge: vmbr0
+          model: virtio
+      numCores: 2
+      numSockets: 2
+      sourceNode: pve002
+      templateID: 105
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: ProxmoxMachineTemplate
+metadata:
+  name: nekropolis-worker
+  namespace: cluster-api
+spec:
+  template:
+    spec:
+      disks:
+        bootVolume:
+          disk: scsi0
+          sizeGb: 30
+      format: qcow2
+      full: true
+      memoryMiB: 8048
+      network:
+        default:
+          bridge: vmbr0
+          model: virtio
+      numCores: 4
+      numSockets: 2
+      sourceNode: pve002
+      target: pve020
+      templateID: 105
+---
+apiVersion: ipam.cluster.x-k8s.io/v1alpha2
+kind: InClusterIPPool
+metadata:
+  name: nekropolis-v4-icip
+  namespace: cluster-api
+spec:
+  addresses:
+  - 192.168.10.50-192.168.10.100
+  gateway: 192.168.178.1
+  prefix: 16

@@ -1,0 +1,28 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+  finalizers:
+  - cluster.cluster.x-k8s.io
+  generation: 6
+  labels:
+    cluster.x-k8s.io/cluster-name: nekropolis
+  name: nekropolis
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 192.168.0.0/16
+  controlPlaneEndpoint:
+    host: 192.168.10.11
+    port: 6443
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: nekropolis-control-plane
+    namespace: PATCHME
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+    kind: ProxmoxCluster
+    name: nekropolis
+    namespace: PATCHME

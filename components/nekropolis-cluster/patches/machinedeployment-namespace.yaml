@@ -1,0 +1,12 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: nekropolis-workers
+spec:
+  template:
+    spec:
+      bootstrap:
+        configRef:
+          namespace: cluster-api
+      infrastructureRef:
+        namespace: cluster-api

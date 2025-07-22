@@ -1,0 +1,8 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: nekropolis-control-plane
+spec:
+  machineTemplate:
+    infrastructureRef:
+      namespace: cluster-api

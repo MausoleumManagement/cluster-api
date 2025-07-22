@@ -1,0 +1,9 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: nekropolis
+spec:
+  controlPlaneRef:
+    namespace: cluster-api
+  infrastructureRef:
+    namespace: cluster-api

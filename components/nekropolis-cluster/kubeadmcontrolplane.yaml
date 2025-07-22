@@ -1,0 +1,83 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  annotations:
+  labels:
+    cluster.x-k8s.io/cluster-name: nekropolis
+  name: nekropolis-control-plane
+spec:
+  kubeadmConfigSpec:
+    files:
+      - content: "apiVersion: v1\nkind: Pod\nmetadata:\n  creationTimestamp: null\n\
+          \  name: kube-vip\n  namespace: kube-system\nspec:\n  containers:\n  - args:\n\
+          \    - manager\n    env:\n    - name: cp_enable\n      value: \"true\"\n\
+          \    - name: vip_interface\n      value: \"\"\n    - name: address\n   \
+          \   value: 192.168.10.11\n    - name: port\n      value: \"6443\"\n    -\
+          \ name: vip_arp\n      value: \"true\"\n    - name: vip_leaderelection\n\
+          \      value: \"true\"\n    - name: vip_leaseduration\n      value: \"15\"\
+          \n    - name: vip_renewdeadline\n      value: \"10\"\n    - name: vip_retryperiod\n\
+          \      value: \"2\"\n    image: ghcr.io/kube-vip/kube-vip:v0.7.1\n    imagePullPolicy:\
+          \ IfNotPresent\n    name: kube-vip\n    resources: {}\n    securityContext:\n\
+          \      capabilities:\n        add:\n        - NET_ADMIN\n        - NET_RAW\n\
+          \    volumeMounts:\n    - mountPath: /etc/kubernetes/admin.conf\n      name:\
+          \ kubeconfig\n  hostAliases:\n  - hostnames:\n    - localhost\n    - kubernetes\n\
+          \    ip: 127.0.0.1\n  hostNetwork: true\n  volumes:\n  - hostPath:\n   \
+          \   path: /etc/kubernetes/admin.conf\n      type: FileOrCreate\n    name:\
+          \ kubeconfig\nstatus: {}\n"
+        owner: root:root
+        path: /etc/kubernetes/manifests/kube-vip.yaml
+      - content: "#!/bin/bash\n\n# Copyright 2020 The Kubernetes Authors.\n#\n# Licensed\
+          \ under the Apache License, Version 2.0 (the \"License\");\n# you may not\
+          \ use this file except in compliance with the License.\n# You may obtain\
+          \ a copy of the License at\n#\n#     http://www.apache.org/licenses/LICENSE-2.0\n\
+          #\n# Unless required by applicable law or agreed to in writing, software\n\
+          # distributed under the License is distributed on an \"AS IS\" BASIS,\n\
+          # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+          # See the License for the specific language governing permissions and\n\
+          # limitations under the License.\n\nset -e\n\n# Configure the workaround\
+          \ required for kubeadm init with kube-vip:\n# xref: https://github.com/kube-vip/kube-vip/issues/684\n\
+          \n# Nothing to do for kubernetes < v1.29\nKUBEADM_MINOR=\"$(kubeadm version\
+          \ -o short | cut -d '.' -f 2)\"\nif [[ \"$KUBEADM_MINOR\" -lt \"29\" ]];\
+          \ then\n  exit 0\nfi\n\nIS_KUBEADM_INIT=\"false\"\n\n# cloud-init kubeadm\
+          \ init\nif [[ -f /run/kubeadm/kubeadm.yaml ]]; then\n  IS_KUBEADM_INIT=\"\
+          true\"\nfi\n\n# ignition kubeadm init\nif [[ -f /etc/kubeadm.sh ]] && grep\
+          \ -q -e \"kubeadm init\" /etc/kubeadm.sh; then\n  IS_KUBEADM_INIT=\"true\"\
+          \nfi\n\nif [[ \"$IS_KUBEADM_INIT\" == \"true\" ]]; then\n  sed -i 's#path:\
+          \ /etc/kubernetes/admin.conf#path: /etc/kubernetes/super-admin.conf#' \\\
+          \n    /etc/kubernetes/manifests/kube-vip.yaml\nfi\n"
+        owner: root:root
+        path: /etc/kube-vip-prepare.sh
+        permissions: '0700'
+    format: cloud-config
+    initConfiguration:
+      localAPIEndpoint: {}
+      nodeRegistration:
+        imagePullPolicy: IfNotPresent
+        kubeletExtraArgs:
+          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+    joinConfiguration:
+      discovery: {}
+      nodeRegistration:
+        imagePullPolicy: IfNotPresent
+        kubeletExtraArgs:
+          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+    preKubeadmCommands:
+      - /etc/kube-vip-prepare.sh
+    users:
+      - name: root
+        sshAuthorizedKeys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
+            Leon Welchert privat
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+      kind: ProxmoxMachineTemplate
+      name: nekropolis-control-plane
+      namespace: PATCHME
+    metadata: {}
+  replicas: 3
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+    type: RollingUpdate
+  version: v1.30.11
