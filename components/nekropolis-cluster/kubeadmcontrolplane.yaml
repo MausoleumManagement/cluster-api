@@ -8,43 +8,106 @@ metadata:
 spec:
   kubeadmConfigSpec:
     files:
-      - content: "apiVersion: v1\nkind: Pod\nmetadata:\n  creationTimestamp: null\n\
-          \  name: kube-vip\n  namespace: kube-system\nspec:\n  containers:\n  - args:\n\
-          \    - manager\n    env:\n    - name: cp_enable\n      value: \"true\"\n\
-          \    - name: vip_interface\n      value: \"\"\n    - name: address\n   \
-          \   value: 192.168.10.11\n    - name: port\n      value: \"6443\"\n    -\
-          \ name: vip_arp\n      value: \"true\"\n    - name: vip_leaderelection\n\
-          \      value: \"true\"\n    - name: vip_leaseduration\n      value: \"15\"\
-          \n    - name: vip_renewdeadline\n      value: \"10\"\n    - name: vip_retryperiod\n\
-          \      value: \"2\"\n    image: ghcr.io/kube-vip/kube-vip:v0.7.1\n    imagePullPolicy:\
-          \ IfNotPresent\n    name: kube-vip\n    resources: {}\n    securityContext:\n\
-          \      capabilities:\n        add:\n        - NET_ADMIN\n        - NET_RAW\n\
-          \    volumeMounts:\n    - mountPath: /etc/kubernetes/admin.conf\n      name:\
-          \ kubeconfig\n  hostAliases:\n  - hostnames:\n    - localhost\n    - kubernetes\n\
-          \    ip: 127.0.0.1\n  hostNetwork: true\n  volumes:\n  - hostPath:\n   \
-          \   path: /etc/kubernetes/admin.conf\n      type: FileOrCreate\n    name:\
-          \ kubeconfig\nstatus: {}\n"
+      - content: |-
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            creationTimestamp: null
+            name: kube-vip
+            namespace: kube-system
+          spec:
+            containers:
+              - args:
+                - manager
+                env:
+                  - name: cp_enable
+                    value: "true"
+                  - name: vip_interface
+                    value: ""
+                  - name: address
+                    value: 192.168.10.11
+                  - name: port
+                    value: "6443"
+                  - name: vip_arp
+                    value: "true"
+                  - name: vip_leaderelection
+                    value: "true"
+                  - name: vip_leaseduration
+                    value: "15"
+                  - name: vip_renewdeadline
+                    value: "10"
+                  - name: vip_retryperiod
+                    value: "2"
+                image: ghcr.io/kube-vip/kube-vip:v0.7.1
+                imagePullPolicy: IfNotPresent
+                name: kube-vip
+                resources: {}
+                securityContext:
+                  capabilities:
+                    add:
+                      - NET_ADMIN
+                      - NET_RAW
+                volumeMounts:
+                  - name: kubeconfig
+                    mountPath: /etc/kubernetes/admin.conf
+            hostAliases:
+              - hostnames:
+                  - localhost
+                  - kubernetes
+                ip: 127.0.0.1
+            hostNetwork: true
+            volumes:
+              - name: kubeconfig
+                hostPath:
+                  path: /etc/kubernetes/admin.conf
+                  type: FileOrCreate
+          status: {}
         owner: root:root
         path: /etc/kubernetes/manifests/kube-vip.yaml
-      - content: "#!/bin/bash\n\n# Copyright 2020 The Kubernetes Authors.\n#\n# Licensed\
-          \ under the Apache License, Version 2.0 (the \"License\");\n# you may not\
-          \ use this file except in compliance with the License.\n# You may obtain\
-          \ a copy of the License at\n#\n#     http://www.apache.org/licenses/LICENSE-2.0\n\
-          #\n# Unless required by applicable law or agreed to in writing, software\n\
-          # distributed under the License is distributed on an \"AS IS\" BASIS,\n\
-          # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
-          # See the License for the specific language governing permissions and\n\
-          # limitations under the License.\n\nset -e\n\n# Configure the workaround\
-          \ required for kubeadm init with kube-vip:\n# xref: https://github.com/kube-vip/kube-vip/issues/684\n\
-          \n# Nothing to do for kubernetes < v1.29\nKUBEADM_MINOR=\"$(kubeadm version\
-          \ -o short | cut -d '.' -f 2)\"\nif [[ \"$KUBEADM_MINOR\" -lt \"29\" ]];\
-          \ then\n  exit 0\nfi\n\nIS_KUBEADM_INIT=\"false\"\n\n# cloud-init kubeadm\
-          \ init\nif [[ -f /run/kubeadm/kubeadm.yaml ]]; then\n  IS_KUBEADM_INIT=\"\
-          true\"\nfi\n\n# ignition kubeadm init\nif [[ -f /etc/kubeadm.sh ]] && grep\
-          \ -q -e \"kubeadm init\" /etc/kubeadm.sh; then\n  IS_KUBEADM_INIT=\"true\"\
-          \nfi\n\nif [[ \"$IS_KUBEADM_INIT\" == \"true\" ]]; then\n  sed -i 's#path:\
-          \ /etc/kubernetes/admin.conf#path: /etc/kubernetes/super-admin.conf#' \\\
-          \n    /etc/kubernetes/manifests/kube-vip.yaml\nfi\n"
+      - content: |-
+          #!/bin/bash
+
+          # Copyright 2020 The Kubernetes Authors.
+          #
+          # Licensed under the Apache License, Version 2.0 (the "License");
+          # you may not use this file except in compliance with the License.
+          # You may obtain a copy of the License at
+          #
+          #     http://www.apache.org/licenses/LICENSE-2.0
+          #
+          # Unless required by applicable law or agreed to in writing, software
+          # distributed under the License is distributed on an "AS IS" BASIS,
+          # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+          # See the License for the specific language governing permissions and
+          # limitations under the License.
+
+          set -e
+
+          # Configure the workaround required for kubeadm init with kube-vip:
+          # xref: https://github.com/kube-vip/kube-vip/issues/684
+
+          # Nothing to do for kubernetes < v1.29
+          KUBEADM_MINOR="$(kubeadm version -o short | cut -d '.' -f 2)"
+          if [[ "$KUBEADM_MINOR" -lt "29" ]]; then
+            exit 0
+          fi
+
+          IS_KUBEADM_INIT="false"
+
+          # cloud-init kubeadm init
+          if [[ -f /run/kubeadm/kubeadm.yaml ]]; then
+            IS_KUBEADM_INIT="true"
+          fi
+
+          # ignition kubeadm init
+          if [[ -f /etc/kubeadm.sh ]] && grep -q -e "kubeadm init" /etc/kubeadm.sh; then
+            IS_KUBEADM_INIT="true"
+          fi
+
+          if [[ "$IS_KUBEADM_INIT" == "true" ]]; then
+            sed -i 's#path: /etc/kubernetes/admin.conf#path: /etc/kubernetes/super-admin.conf#' \
+              /etc/kubernetes/manifests/kube-vip.yaml
+          fi
         owner: root:root
         path: /etc/kube-vip-prepare.sh
         permissions: '0700'
