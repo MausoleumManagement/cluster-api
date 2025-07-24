@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  // https://docs.renovatebot.com/modules/manager/regex/#advanced-capture
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^generate-cluster-api-providers\\.sh$"],
+      "matchStringsStrategy": "any",
+      "matchStrings": [
+        "[A-Z_]+_VERSION=\"(?<currentValue>.*)\" # (?<datasource>.*?)/(?<depName>.*?)(\\&versioning=(?<versioning>.*?))?\\s"
+      ],
+      "datasourceTemplate": "github-releases"
+    }
+  ]
+}
