@@ -195,7 +195,6 @@ spec:
                                 rule: self == oldSelf
                           type: object
                         format:
-                          default: raw
                           description: Format for file storage. Only valid for full
                             clone.
                           enum:
@@ -760,6 +759,11 @@ spec:
                           - message: end should be greater than or equal to start
                             rule: self.end >= self.start
                       type: object
+                      x-kubernetes-validations:
+                      - message: Must set full=true when specifying format
+                        rule: self.full || !has(self.format)
+                      - message: Must set full=true when specifying storage
+                        rule: self.full || !has(self.storage)
                     type: object
                     x-kubernetes-validations:
                     - message: Cowardly refusing to deploy cluster without control
@@ -1267,7 +1271,6 @@ spec:
                                         rule: self == oldSelf
                                   type: object
                                 format:
-                                  default: raw
                                   description: Format for file storage. Only valid
                                     for full clone.
                                   enum:
@@ -1850,6 +1853,11 @@ spec:
                                       start
                                     rule: self.end >= self.start
                               type: object
+                              x-kubernetes-validations:
+                              - message: Must set full=true when specifying format
+                                rule: self.full || !has(self.format)
+                              - message: Must set full=true when specifying storage
+                                rule: self.full || !has(self.storage)
                             type: object
                             x-kubernetes-validations:
                             - message: Cowardly refusing to deploy cluster without
@@ -2152,7 +2160,6 @@ spec:
                       rule: self == oldSelf
                 type: object
               format:
-                default: raw
                 description: Format for file storage. Only valid for full clone.
                 enum:
                 - raw
@@ -2689,7 +2696,9 @@ spec:
               rule: '[has(self.templateID), has(self.templateSelector)].exists_one(c,
                 c)'
             - message: Must set full=true when specifying format
-              rule: self.full && self.format != ''
+              rule: self.full || !has(self.format)
+            - message: Must set full=true when specifying storage
+              rule: self.full || !has(self.storage)
           status:
             description: ProxmoxMachineStatus defines the observed state of a ProxmoxMachine.
             properties:
@@ -3023,7 +3032,6 @@ spec:
                               rule: self == oldSelf
                         type: object
                       format:
-                        default: raw
                         description: Format for file storage. Only valid for full
                           clone.
                         enum:
@@ -3581,6 +3589,11 @@ spec:
                         - message: end should be greater than or equal to start
                           rule: self.end >= self.start
                     type: object
+                    x-kubernetes-validations:
+                    - message: Must set full=true when specifying format
+                      rule: self.full || !has(self.format)
+                    - message: Must set full=true when specifying storage
+                      rule: self.full || !has(self.storage)
                 required:
                 - spec
                 type: object
@@ -3992,7 +4005,7 @@ spec:
             secretKeyRef:
               key: secret
               name: capmox-manager-credentials
-        image: ghcr.io/ionos-cloud/cluster-api-provider-proxmox:v0.7.1
+        image: ghcr.io/ionos-cloud/cluster-api-provider-proxmox:v0.7.2
         livenessProbe:
           httpGet:
             path: /healthz
