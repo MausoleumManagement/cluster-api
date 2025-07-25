@@ -2,7 +2,7 @@
 
 
 ### TEST ###
-ARG TERRAFORM_VERSION="1.9.7" # github-tags/hashicorp/terraform&versioning=semver
+ARG TERRAFORM_VERSION="1.12.2" # github-tags/hashicorp/terraform&versioning=semver
 ### TEST ###
 
 
