@@ -7,6 +7,30 @@ metadata:
   name: nekropolis-control-plane
 spec:
   kubeadmConfigSpec:
+    format: cloud-config
+    initConfiguration:
+      localAPIEndpoint: {}
+      nodeRegistration:
+        imagePullPolicy: IfNotPresent
+        kubeletExtraArgs:
+          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+    joinConfiguration:
+      discovery: {}
+      nodeRegistration:
+        imagePullPolicy: IfNotPresent
+        kubeletExtraArgs:
+          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          enable-admission-plugins: "NamespaceExists"
+    preKubeadmCommands:
+      - /etc/kube-vip-prepare.sh
+    users:
+      - name: root
+        sshAuthorizedKeys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
+            Leon Welchert privat
     files:
       - content: |-
           apiVersion: v1
@@ -111,26 +135,6 @@ spec:
         owner: root:root
         path: /etc/kube-vip-prepare.sh
         permissions: '0700'
-    format: cloud-config
-    initConfiguration:
-      localAPIEndpoint: {}
-      nodeRegistration:
-        imagePullPolicy: IfNotPresent
-        kubeletExtraArgs:
-          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
-    joinConfiguration:
-      discovery: {}
-      nodeRegistration:
-        imagePullPolicy: IfNotPresent
-        kubeletExtraArgs:
-          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
-    preKubeadmCommands:
-      - /etc/kube-vip-prepare.sh
-    users:
-      - name: root
-        sshAuthorizedKeys:
-          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
-            Leon Welchert privat
   machineTemplate:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1

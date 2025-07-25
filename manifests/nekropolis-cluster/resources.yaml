@@ -107,6 +107,10 @@ metadata:
   namespace: cluster-api
 spec:
   kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          enable-admission-plugins: NamespaceExists
     files:
     - content: |-
         apiVersion: v1
