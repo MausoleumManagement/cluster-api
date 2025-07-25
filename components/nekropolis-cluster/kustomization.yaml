@@ -18,3 +18,4 @@ patches:
 - path: patches/cluster-namespace.yaml
 - path: patches/machinedeployment-namespace.yaml
 - path: patches/kubeadmcontrolplane-namespace.yaml
+- path: patches/kubeadmcontrolplane-namespace.yaml
