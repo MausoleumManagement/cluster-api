@@ -9,7 +9,7 @@
 CLUSTER_API_VERSION="1.10.4" # github-releases/kubernetes-sigs/cluster-api&versioning=semver
 
 # https://github.com/kubernetes-sigs/cluster-api-ipam-provider-in-cluster/releases/
-IPAM_INCLUSTER_VERSION="1.0.2" # github-releases/kubernetes-sigs/cluster-api-ipam-provider-in-cluster&versioning=semver
+IPAM_INCLUSTER_VERSION="1.0.3" # github-releases/kubernetes-sigs/cluster-api-ipam-provider-in-cluster&versioning=semver
 
 # https://github.com/ionos-cloud/cluster-api-provider-proxmox/releases/
 CAPMOX_VERSION="0.7.2" # github-releases/ionos-cloud/cluster-api-provider-proxmox&versioning=semver
