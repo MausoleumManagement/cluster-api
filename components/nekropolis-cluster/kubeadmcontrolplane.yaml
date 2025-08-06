@@ -168,4 +168,4 @@ spec:
     rollingUpdate:
       maxSurge: 1
     type: RollingUpdate
-  version: v1.30.11
+  version: v1.31.11

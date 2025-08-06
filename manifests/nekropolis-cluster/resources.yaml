@@ -265,7 +265,7 @@ spec:
     rollingUpdate:
       maxSurge: 1
     type: RollingUpdate
-  version: v1.30.11
+  version: v1.31.11
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
 kind: ProxmoxCluster
@@ -312,8 +312,8 @@ spec:
           model: virtio
       numCores: 2
       numSockets: 2
-      sourceNode: pve002
-      templateID: 105
+      sourceNode: pve020
+      templateID: 108
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
 kind: ProxmoxMachineTemplate

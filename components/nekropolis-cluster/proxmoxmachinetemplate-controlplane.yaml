@@ -18,5 +18,5 @@ spec:
           model: virtio
       numCores: 2
       numSockets: 2
-      sourceNode: pve002
-      templateID: 105
+      sourceNode: pve020
+      templateID: 108
