@@ -302,10 +302,10 @@ spec:
       disks:
         bootVolume:
           disk: scsi0
-          sizeGb: 30
+          sizeGb: 20
       format: qcow2
       full: true
-      memoryMiB: 4096
+      memoryMiB: 8000
       network:
         default:
           bridge: vmbr0
