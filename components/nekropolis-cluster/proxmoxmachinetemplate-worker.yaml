@@ -1,7 +1,10 @@
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
 kind: ProxmoxMachineTemplate
 metadata:
-  name: nekropolis-worker
+  # the german numeral suffix at the end is used to differentiate machine templates
+  # within the same kubernetes release, since they should not be modified
+  # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
+  name: nekropolis-worker-1.31.11-eins
 spec:
   template:
     spec:
@@ -18,10 +21,10 @@ spec:
           model: virtio
       numCores: 4
       numSockets: 2
-      sourceNode: pve002
+      sourceNode: pve020
       # this seems to be the only way to prevent VMs from being  started on
       # unsuitable Proxmox nodes
       # TODO: See if there is some other way / improve in the future when numbers of
       # physical hosts has increased
       target: pve020
-      templateID: 105
+      templateID: 108

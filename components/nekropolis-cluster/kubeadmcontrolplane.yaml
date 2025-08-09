@@ -160,7 +160,10 @@ spec:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
       kind: ProxmoxMachineTemplate
-      name: nekropolis-control-plane
+      # the german numeral suffix at the end is used to differentiate machine templates
+      # within the same kubernetes release, since they should not be modified
+      # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
+      name: nekropolis-control-plane-v1.31.11-eins
       namespace: PATCHME
     metadata: {}
   replicas: 3
