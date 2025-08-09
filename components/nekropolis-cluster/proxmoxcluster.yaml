@@ -5,9 +5,10 @@ metadata:
   name: nekropolis
 spec:
   allowedNodes:
-    - pve001
     - pve002
     - pve020
+    - pve021
+    - pve022
   controlPlaneEndpoint:
     host: 192.168.10.11
     port: 6443

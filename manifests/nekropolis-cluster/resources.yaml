@@ -40,7 +40,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.0.0/16
+      - 10.0.0.0/8
+    services:
+      cidrBlocks:
+      - 172.16.0.0/12
   controlPlaneEndpoint:
     host: 192.168.10.11
     port: 6443
@@ -274,9 +277,10 @@ metadata:
   namespace: cluster-api
 spec:
   allowedNodes:
-  - pve001
   - pve002
   - pve020
+  - pve021
+  - pve022
   controlPlaneEndpoint:
     host: 192.168.10.11
     port: 6443
