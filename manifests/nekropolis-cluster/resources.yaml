@@ -277,7 +277,6 @@ metadata:
   namespace: cluster-api
 spec:
   allowedNodes:
-  - pve002
   - pve020
   - pve021
   - pve022
