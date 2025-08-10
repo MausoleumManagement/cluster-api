@@ -163,7 +163,7 @@ spec:
       # the german numeral suffix at the end is used to differentiate machine templates
       # within the same kubernetes release, since they should not be modified
       # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
-      name: nekropolis-control-plane-1.31.11-eins
+      name: nekropolis-control-plane-1.31.11-zwei
       namespace: PATCHME
     metadata: {}
   replicas: 3

@@ -97,7 +97,7 @@ spec:
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
         kind: ProxmoxMachineTemplate
-        name: nekropolis-worker-1.31.11-eins
+        name: nekropolis-worker-1.31.11-zwei
         namespace: cluster-api
       version: 1.31.11
 ---
@@ -260,7 +260,7 @@ spec:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
       kind: ProxmoxMachineTemplate
-      name: nekropolis-control-plane-1.31.11-eins
+      name: nekropolis-control-plane-1.31.11-zwei
       namespace: cluster-api
     metadata: {}
   replicas: 3
@@ -297,7 +297,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
 kind: ProxmoxMachineTemplate
 metadata:
-  name: nekropolis-control-plane-1.31.11-eins
+  name: nekropolis-control-plane-1.31.11-zwei
   namespace: cluster-api
 spec:
   template:
@@ -315,13 +315,14 @@ spec:
           model: virtio
       numCores: 2
       numSockets: 2
+      pool: k8s-vms-nekropolis
       sourceNode: pve020
       templateID: 108
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
 kind: ProxmoxMachineTemplate
 metadata:
-  name: nekropolis-worker-1.31.11-eins
+  name: nekropolis-worker-1.31.11-zwei
   namespace: cluster-api
 spec:
   template:
@@ -339,8 +340,8 @@ spec:
           model: virtio
       numCores: 4
       numSockets: 2
+      pool: k8s-vms-nekropolis
       sourceNode: pve020
-      target: pve020
       templateID: 108
 ---
 apiVersion: ipam.cluster.x-k8s.io/v1alpha2

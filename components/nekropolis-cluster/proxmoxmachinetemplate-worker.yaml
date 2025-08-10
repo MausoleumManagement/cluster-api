@@ -4,7 +4,7 @@ metadata:
   # the german numeral suffix at the end is used to differentiate machine templates
   # within the same kubernetes release, since they should not be modified
   # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
-  name: nekropolis-worker-1.31.11-eins
+  name: nekropolis-worker-1.31.11-zwei
 spec:
   template:
     spec:
@@ -22,9 +22,5 @@ spec:
       numCores: 4
       numSockets: 2
       sourceNode: pve020
-      # this seems to be the only way to prevent VMs from being  started on
-      # unsuitable Proxmox nodes
-      # TODO: See if there is some other way / improve in the future when numbers of
-      # physical hosts has increased
-      target: pve020
       templateID: 108
+      pool: k8s-vms-nekropolis
