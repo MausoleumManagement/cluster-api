@@ -4,7 +4,6 @@ metadata:
   annotations:
   finalizers:
   - cluster.cluster.x-k8s.io
-  generation: 6
   labels:
     cluster.x-k8s.io/cluster-name: nekropolis
   name: nekropolis
