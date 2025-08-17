@@ -8,7 +8,7 @@ spec:
   clusterName: nekropolis
   minReadySeconds: 0
   progressDeadlineSeconds: 600
-  replicas: 2
+  replicas: 3
   revisionHistoryLimit: 1
   selector:
     matchLabels:
@@ -39,6 +39,6 @@ spec:
         # the german numeral suffix at the end is used to differentiate machine templates
         # within the same kubernetes release, since they should not be modified
         # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
-        name: nekropolis-worker-1.31.11-drei
+        name: nekropolis-worker-1.31.11-vier
         namespace: PATCHME
       version: v1.31.11

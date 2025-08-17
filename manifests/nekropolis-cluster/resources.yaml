@@ -68,7 +68,7 @@ spec:
   clusterName: nekropolis
   minReadySeconds: 0
   progressDeadlineSeconds: 600
-  replicas: 2
+  replicas: 3
   revisionHistoryLimit: 1
   selector:
     matchLabels:
@@ -96,7 +96,7 @@ spec:
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
         kind: ProxmoxMachineTemplate
-        name: nekropolis-worker-1.31.11-drei
+        name: nekropolis-worker-1.31.11-vier
         namespace: cluster-api
       version: v1.31.11
 ---
@@ -321,7 +321,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
 kind: ProxmoxMachineTemplate
 metadata:
-  name: nekropolis-worker-1.31.11-drei
+  name: nekropolis-worker-1.31.11-vier
   namespace: cluster-api
 spec:
   template:
@@ -332,13 +332,13 @@ spec:
           sizeGb: 20
       format: qcow2
       full: true
-      memoryMiB: 16000
+      memoryMiB: 32000
       network:
         default:
           bridge: vmbr0
           model: virtio
-      numCores: 4
-      numSockets: 2
+      numCores: 8
+      numSockets: 4
       pool: k8s-vms-nekropolis
       sourceNode: pve020
       templateID: 109
