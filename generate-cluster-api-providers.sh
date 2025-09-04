@@ -6,7 +6,7 @@
 # see: renovate.json5
 
 # https://github.com/kubernetes-sigs/cluster-api/releases/ 
-CLUSTER_API_VERSION="1.10.4" # github-releases/kubernetes-sigs/cluster-api&versioning=semver
+CLUSTER_API_VERSION="1.11.1" # github-releases/kubernetes-sigs/cluster-api&versioning=semver
 
 # https://github.com/kubernetes-sigs/cluster-api-ipam-provider-in-cluster/releases/
 IPAM_INCLUSTER_VERSION="1.0.3" # github-releases/kubernetes-sigs/cluster-api-ipam-provider-in-cluster&versioning=semver
