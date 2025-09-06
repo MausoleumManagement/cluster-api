@@ -12,7 +12,7 @@ CLUSTER_API_VERSION="1.11.0" # github-releases/kubernetes-sigs/cluster-api&versi
 IPAM_INCLUSTER_VERSION="1.0.3" # github-releases/kubernetes-sigs/cluster-api-ipam-provider-in-cluster&versioning=semver
 
 # https://github.com/ionos-cloud/cluster-api-provider-proxmox/releases/
-CAPMOX_VERSION="0.7.3" # github-releases/ionos-cloud/cluster-api-provider-proxmox&versioning=semver
+CAPMOX_VERSION="0.7.4" # github-releases/ionos-cloud/cluster-api-provider-proxmox&versioning=semver
 
 # the documentation expects you to run `clusterctl init`, which has no option to output
 # manifests to stdout or anywhere other than straight onto the cluster

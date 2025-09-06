@@ -4,14 +4,14 @@ metadata:
   # the german numeral suffix at the end is used to differentiate machine templates
   # within the same kubernetes release, since they should not be modified
   # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
-  name: nekropolis-worker-1.31.11-vier
+  name: nekropolis-worker-1.31.11-fuenf
 spec:
   template:
     spec:
       disks:
         bootVolume:
           disk: scsi0
-          sizeGb: 20
+          sizeGb: 50
       format: qcow2
       full: true
       memoryMiB: 32000
