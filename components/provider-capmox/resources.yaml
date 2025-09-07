@@ -324,9 +324,6 @@ spec:
                                     - message: invalid MTU value
                                       rule: self == 1 || ( self >= 576 && self <=
                                         65520)
-                                    - message: invalid MTU value
-                                      rule: self == 1 || ( self >= 576 && self <=
-                                        65520)
                                   model:
                                     default: virtio
                                     description: Model is the network device model.
@@ -342,9 +339,6 @@ spec:
                                       When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                                     type: integer
                                     x-kubernetes-validations:
-                                    - message: invalid MTU value
-                                      rule: self == 1 || ( self >= 576 && self <=
-                                        65520)
                                     - message: invalid MTU value
                                       rule: self == 1 || ( self >= 576 && self <=
                                         65520)
@@ -536,8 +530,6 @@ spec:
                                     When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                                   type: integer
                                   x-kubernetes-validations:
-                                  - message: invalid MTU value
-                                    rule: self == 1 || ( self >= 576 && self <= 65520)
                                   - message: invalid MTU value
                                     rule: self == 1 || ( self >= 576 && self <= 65520)
                                 vlan:
@@ -1408,9 +1400,6 @@ spec:
                                             - message: invalid MTU value
                                               rule: self == 1 || ( self >= 576 &&
                                                 self <= 65520)
-                                            - message: invalid MTU value
-                                              rule: self == 1 || ( self >= 576 &&
-                                                self <= 65520)
                                           model:
                                             default: virtio
                                             description: Model is the network device
@@ -1427,9 +1416,6 @@ spec:
                                               When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                                             type: integer
                                             x-kubernetes-validations:
-                                            - message: invalid MTU value
-                                              rule: self == 1 || ( self >= 576 &&
-                                                self <= 65520)
                                             - message: invalid MTU value
                                               rule: self == 1 || ( self >= 576 &&
                                                 self <= 65520)
@@ -1627,9 +1613,6 @@ spec:
                                             When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                                           type: integer
                                           x-kubernetes-validations:
-                                          - message: invalid MTU value
-                                            rule: self == 1 || ( self >= 576 && self
-                                              <= 65520)
                                           - message: invalid MTU value
                                             rule: self == 1 || ( self >= 576 && self
                                               <= 65520)
@@ -2290,8 +2273,6 @@ spec:
                           x-kubernetes-validations:
                           - message: invalid MTU value
                             rule: self == 1 || ( self >= 576 && self <= 65520)
-                          - message: invalid MTU value
-                            rule: self == 1 || ( self >= 576 && self <= 65520)
                         model:
                           default: virtio
                           description: Model is the network device model.
@@ -2307,8 +2288,6 @@ spec:
                             When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                           type: integer
                           x-kubernetes-validations:
-                          - message: invalid MTU value
-                            rule: self == 1 || ( self >= 576 && self <= 65520)
                           - message: invalid MTU value
                             rule: self == 1 || ( self >= 576 && self <= 65520)
                         name:
@@ -2483,8 +2462,6 @@ spec:
                           When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                         type: integer
                         x-kubernetes-validations:
-                        - message: invalid MTU value
-                          rule: self == 1 || ( self >= 576 && self <= 65520)
                         - message: invalid MTU value
                           rule: self == 1 || ( self >= 576 && self <= 65520)
                       vlan:
@@ -3186,8 +3163,6 @@ spec:
                                   x-kubernetes-validations:
                                   - message: invalid MTU value
                                     rule: self == 1 || ( self >= 576 && self <= 65520)
-                                  - message: invalid MTU value
-                                    rule: self == 1 || ( self >= 576 && self <= 65520)
                                 model:
                                   default: virtio
                                   description: Model is the network device model.
@@ -3203,8 +3178,6 @@ spec:
                                     When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                                   type: integer
                                   x-kubernetes-validations:
-                                  - message: invalid MTU value
-                                    rule: self == 1 || ( self >= 576 && self <= 65520)
                                   - message: invalid MTU value
                                     rule: self == 1 || ( self >= 576 && self <= 65520)
                                 name:
@@ -3393,8 +3366,6 @@ spec:
                                   When set to 1, virtio devices inherit the MTU value from the underlying bridge.
                                 type: integer
                                 x-kubernetes-validations:
-                                - message: invalid MTU value
-                                  rule: self == 1 || ( self >= 576 && self <= 65520)
                                 - message: invalid MTU value
                                   rule: self == 1 || ( self >= 576 && self <= 65520)
                               vlan:
