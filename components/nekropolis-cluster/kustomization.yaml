@@ -1,7 +1,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-# some of the resources have references to other resources including their namespace
-# those will need to be patched
 namespace: cluster-api
 resources:
 - cluster.yaml
@@ -13,9 +11,11 @@ resources:
 - proxmoxcluster.yaml
 - proxmoxmachinetemplate-controlplane.yaml
 - proxmoxmachinetemplate-worker.yaml
-# see note regarding namespace above
-patches:
-- path: patches/cluster-namespace.yaml
-- path: patches/machinedeployment-namespace.yaml
-- path: patches/kubeadmcontrolplane-namespace.yaml
-- path: patches/kubeadmcontrolplane-namespace.yaml
+
+# these became superfluous in v1beta2
+# keep them around for a bit just in case - 20250907
+#patches:
+#- path: patches/cluster-namespace.yaml
+#- path: patches/machinedeployment-namespace.yaml
+#- path: patches/kubeadmcontrolplane-namespace.yaml
+#- path: patches/kubeadmcontrolplane-namespace.yaml

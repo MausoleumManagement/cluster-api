@@ -1,4 +1,4 @@
-apiVersion: cluster.x-k8s.io/v1beta1
+apiVersion: cluster.x-k8s.io/v1beta2
 kind: MachineDeployment
 metadata:
   labels:
@@ -6,19 +6,17 @@ metadata:
   name: nekropolis-workers
 spec:
   clusterName: nekropolis
-  minReadySeconds: 0
-  progressDeadlineSeconds: 600
   replicas: 3
-  revisionHistoryLimit: 1
   selector:
     matchLabels:
       cluster.x-k8s.io/cluster-name: nekropolis
       cluster.x-k8s.io/deployment-name: nekropolis-workers
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
+  rollout:
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      type: RollingUpdate
   template:
     metadata:
       labels:
@@ -26,19 +24,19 @@ spec:
         cluster.x-k8s.io/deployment-name: nekropolis-workers
         node-role.kubernetes.io/node: ''
     spec:
+      # amount of seconds a machine has to be ready until it is considered available
+      minReadySeconds: 10
       bootstrap:
         configRef:
-          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          apiGroup: bootstrap.cluster.x-k8s.io
           kind: KubeadmConfigTemplate
           name: nekropolis-worker
-          namespace: PATCHME
       clusterName: nekropolis
       infrastructureRef:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+        apiGroup: infrastructure.cluster.x-k8s.io
         kind: ProxmoxMachineTemplate
         # the german numeral suffix at the end is used to differentiate machine templates
         # within the same kubernetes release, since they should not be modified
         # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
         name: nekropolis-worker-1.31.11-fuenf
-        namespace: PATCHME
       version: v1.31.11

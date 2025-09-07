@@ -1,4 +1,4 @@
-apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+apiVersion: controlplane.cluster.x-k8s.io/v1beta2
 kind: KubeadmControlPlane
 metadata:
   annotations:
@@ -9,21 +9,22 @@ spec:
   kubeadmConfigSpec:
     format: cloud-config
     initConfiguration:
-      localAPIEndpoint: {}
       nodeRegistration:
         imagePullPolicy: IfNotPresent
         kubeletExtraArgs:
-          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+          - name: provider-id
+            value: "proxmox://'{{ ds.meta_data.instance_id }}'"
     joinConfiguration:
-      discovery: {}
       nodeRegistration:
         imagePullPolicy: IfNotPresent
         kubeletExtraArgs:
-          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+          - name: provider-id
+            value: "proxmox://'{{ ds.meta_data.instance_id }}'"
     clusterConfiguration:
       apiServer:
         extraArgs:
-          enable-admission-plugins: "NamespaceExists"
+          - name: enable-admission-plugins
+            value: "NamespaceExists"
     preKubeadmCommands:
       - /etc/kube-vip-prepare.sh
     users:
@@ -157,18 +158,18 @@ spec:
         path: /etc/kube-vip-prepare.sh
         permissions: '0700'
   machineTemplate:
-    infrastructureRef:
-      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-      kind: ProxmoxMachineTemplate
-      # the german numeral suffix at the end is used to differentiate machine templates
-      # within the same kubernetes release, since they should not be modified
-      # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
-      name: nekropolis-control-plane-1.31.11-drei
-      namespace: PATCHME
-    metadata: {}
+    spec:
+      infrastructureRef:
+        apiGroup: infrastructure.cluster.x-k8s.io
+        kind: ProxmoxMachineTemplate
+        # the german numeral suffix at the end is used to differentiate machine templates
+        # within the same kubernetes release, since they should not be modified
+        # see https://cluster-api.sigs.k8s.io/tasks/updating-machine-templates.html
+        name: nekropolis-control-plane-1.31.11-drei
   replicas: 3
-  rolloutStrategy:
-    rollingUpdate:
-      maxSurge: 1
-    type: RollingUpdate
+  rollout:
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+      type: RollingUpdate
   version: v1.31.11

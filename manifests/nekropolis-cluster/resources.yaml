@@ -5,7 +5,7 @@ metadata:
     kubernetes.io/metadata.name: cluster-api
   name: cluster-api
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta2
 kind: KubeadmConfigTemplate
 metadata:
   name: nekropolis-worker
@@ -15,18 +15,18 @@ spec:
     spec:
       format: cloud-config
       joinConfiguration:
-        discovery: {}
         nodeRegistration:
           imagePullPolicy: IfNotPresent
           kubeletExtraArgs:
-            provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+          - name: provider-id
+            value: proxmox://'{{ ds.meta_data.instance_id }}'
       users:
       - name: root
         sshAuthorizedKeys:
         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
           Leon Welchert privat
 ---
-apiVersion: cluster.x-k8s.io/v1beta1
+apiVersion: cluster.x-k8s.io/v1beta2
 kind: Cluster
 metadata:
   finalizers:
@@ -47,17 +47,15 @@ spec:
     host: 192.168.10.11
     port: 6443
   controlPlaneRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    apiGroup: controlplane.cluster.x-k8s.io
     kind: KubeadmControlPlane
     name: nekropolis-control-plane
-    namespace: cluster-api
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+    apiGroup: infrastructure.cluster.x-k8s.io
     kind: ProxmoxCluster
     name: nekropolis
-    namespace: cluster-api
 ---
-apiVersion: cluster.x-k8s.io/v1beta1
+apiVersion: cluster.x-k8s.io/v1beta2
 kind: MachineDeployment
 metadata:
   labels:
@@ -66,19 +64,17 @@ metadata:
   namespace: cluster-api
 spec:
   clusterName: nekropolis
-  minReadySeconds: 0
-  progressDeadlineSeconds: 600
   replicas: 3
-  revisionHistoryLimit: 1
+  rollout:
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      type: RollingUpdate
   selector:
     matchLabels:
       cluster.x-k8s.io/cluster-name: nekropolis
       cluster.x-k8s.io/deployment-name: nekropolis-workers
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -88,19 +84,18 @@ spec:
     spec:
       bootstrap:
         configRef:
-          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          apiGroup: bootstrap.cluster.x-k8s.io
           kind: KubeadmConfigTemplate
           name: nekropolis-worker
-          namespace: cluster-api
       clusterName: nekropolis
       infrastructureRef:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+        apiGroup: infrastructure.cluster.x-k8s.io
         kind: ProxmoxMachineTemplate
         name: nekropolis-worker-1.31.11-fuenf
-        namespace: cluster-api
+      minReadySeconds: 10
       version: v1.31.11
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+apiVersion: controlplane.cluster.x-k8s.io/v1beta2
 kind: KubeadmControlPlane
 metadata:
   labels:
@@ -112,7 +107,8 @@ spec:
     clusterConfiguration:
       apiServer:
         extraArgs:
-          enable-admission-plugins: NamespaceExists
+        - name: enable-admission-plugins
+          value: NamespaceExists
     files:
     - content: |-
         apiVersion: v1
@@ -237,17 +233,17 @@ spec:
       permissions: "0700"
     format: cloud-config
     initConfiguration:
-      localAPIEndpoint: {}
       nodeRegistration:
         imagePullPolicy: IfNotPresent
         kubeletExtraArgs:
-          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+        - name: provider-id
+          value: proxmox://'{{ ds.meta_data.instance_id }}'
     joinConfiguration:
-      discovery: {}
       nodeRegistration:
         imagePullPolicy: IfNotPresent
         kubeletExtraArgs:
-          provider-id: proxmox://'{{ ds.meta_data.instance_id }}'
+        - name: provider-id
+          value: proxmox://'{{ ds.meta_data.instance_id }}'
     preKubeadmCommands:
     - /etc/kube-vip-prepare.sh
     users:
@@ -256,17 +252,17 @@ spec:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeA+KvPI+y/OtbCkWpKTt9bpGKXkDtwZX3pdjzeRuRD
         Leon Welchert privat
   machineTemplate:
-    infrastructureRef:
-      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-      kind: ProxmoxMachineTemplate
-      name: nekropolis-control-plane-1.31.11-drei
-      namespace: cluster-api
-    metadata: {}
+    spec:
+      infrastructureRef:
+        apiGroup: infrastructure.cluster.x-k8s.io
+        kind: ProxmoxMachineTemplate
+        name: nekropolis-control-plane-1.31.11-drei
   replicas: 3
-  rolloutStrategy:
-    rollingUpdate:
-      maxSurge: 1
-    type: RollingUpdate
+  rollout:
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+      type: RollingUpdate
   version: v1.31.11
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
