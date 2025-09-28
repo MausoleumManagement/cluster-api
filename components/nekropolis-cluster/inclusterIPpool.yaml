@@ -5,5 +5,5 @@ metadata:
 spec:
   addresses:
     - 192.168.10.50-192.168.10.100
-  gateway: 192.168.178.1
+  gateway: 192.168.8.1
   prefix: 16
